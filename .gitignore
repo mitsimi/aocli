@@ -1,0 +1,8 @@
+.vscode
+**/.DS_Store
+
+template
+
+.env
+.adventofcode.session
+.aoc.session
