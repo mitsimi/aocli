@@ -8,6 +8,9 @@ Please do not use this tool for automated AI assisted submissions. This is activ
 
 ## Features
 
+> [!WARNING]
+> Downloading and saving the puzzles text and your inputs locally is for personal convenience. Uploading them to a public repository is discouraged by the authors of this project and [the AoC team](https://adventofcode.com/about#faq_copying).
+
 - Load Advent of Code session cookie from a file or environment variable.
 - Read puzzle description and save it to a file in Markdown format.
 - Download puzzle input.
