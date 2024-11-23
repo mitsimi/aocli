@@ -39,35 +39,27 @@ func init() {
 	// Initialize the client
 	client = aoc.NewClient(viper.GetString("session"))
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// TODO change locations lookup. current folder and parent
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
+		if _, err := getDayFromCurrentDir(); err == nil {
+			viper.AddConfigPath("..")
+		} else {
+			viper.AddConfigPath(".")
+		}
 
 		// Search config in home directory with name ".aocli" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigType("yaml")
+		viper.SetConfigType("toml")
 		viper.SetConfigName(".aocli")
 	}
-
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.SetDefault("year", getDefaultYear())
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {

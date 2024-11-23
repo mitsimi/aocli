@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/mitsimi/aocli/internal/aoc"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // submitCmd represents the submit command
@@ -24,23 +24,14 @@ The answer may be provided as an argument or through the file flag. You also can
 func init() {
 	rootCmd.AddCommand(submitCmd)
 
-	var yearVal int = time.Now().Year()
-	if time.Now().Month() != time.December {
-		// default to lasts years because this years isn't open yet
-		yearVal -= 1
-	}
-	submitCmd.Flags().IntP("year", "y", yearVal, "Puzzle year. Defaults to year of current or last Advent of Code event. Can be specified in the config file.")
+	submitCmd.Flags().IntP("year", "y", getDefaultYear(), "puzzle year (year of current or last event. Can be specified in the config file)")
+	viper.BindPFlag("year", submitCmd.Flags().Lookup("year"))
 
-	var dayVal int = time.Now().Day()
-	if unlocked, _ := aoc.IsDayUnlocked(yearVal, dayVal); !unlocked {
-		// default to lasts years because this years isn't open yet
-		dayVal -= 1
-	}
-	submitCmd.Flags().IntP("day", "d", dayVal, "Puzzle day. Defaults to current/last unlocked day (during Advent of Code month) or is inferred from the current folder")
+	submitCmd.Flags().IntP("day", "d", getDefaultDay(), "puzzle day (current/last unlocked day (during Advent of Code month) or is inferred from the current folder)")
 
-	submitCmd.Flags().IntP("level", "l", 1, "Puzzle level. Defaults to 1")
+	submitCmd.Flags().IntP("level", "l", 1, "puzzle level (1 or 2)")
 
-	submitCmd.Flags().StringP("file", "f", "", "File containing the answer")
+	submitCmd.Flags().StringP("file", "f", "", "file containing the answer")
 }
 
 func executeSubmit(cmd *cobra.Command, args []string) error {
@@ -50,12 +41,12 @@ func executeSubmit(cmd *cobra.Command, args []string) error {
 	}
 
 	level, _ := cmd.Flags().GetInt("level")
-
-	year, _ := cmd.Flags().GetInt("year")
-
+	year := viper.GetInt("year")
 	day, _ := cmd.Flags().GetInt("day")
 
-	outcome, err := client.SubmitAnswer(aoc.Level(level), year, day, answer)
+	fmt.Printf("Submitting answer %s for %d/%d, level %d\n", answer, year, day, level)
+
+	outcome, err := aoc.SubmissionIncorrect, nil //client.SubmitAnswer(aoc.Level(level), year, day, answer)
 	if err != nil {
 		return fmt.Errorf("Error submitting answer: %v", err)
 	}
