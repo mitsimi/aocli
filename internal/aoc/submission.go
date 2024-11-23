@@ -45,7 +45,7 @@ func (so SubmissionOutcome) String() string {
 	}
 }
 
-func (c *Client) Submit(level Level, year, day int, answer int) (SubmissionOutcome, error) {
+func (c *Client) SubmitAnswer(level Level, year, day int, answer int) (SubmissionOutcome, error) {
 	data := url.Values{}
 	data.Set("level", fmt.Sprintf("%d", level))
 	data.Set("answer", fmt.Sprintf("%d", answer))
