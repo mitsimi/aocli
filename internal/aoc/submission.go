@@ -18,65 +18,72 @@ const (
 	LevelTwo
 )
 
+func ParseLevel(s string) Level {
+	if s == "2" {
+		return LevelTwo
+	}
+	return LevelOne
+}
+
 type SubmissionOutcome int
 
 const (
-	Correct SubmissionOutcome = iota
-	Incorrect
-	Wait
-	WrongLevel
-	Error
+	SubmissionCorrect SubmissionOutcome = iota
+	SubmissionIncorrect
+	SubmissionWait
+	SubmissionWrongLevel
+	SubmissionError
 )
 
 func (so SubmissionOutcome) String() string {
 	switch so {
-	case Correct:
+	case SubmissionCorrect:
 		return "Correct answer"
-	case Incorrect:
+	case SubmissionIncorrect:
 		return "Incorrect answer"
-	case Wait:
+	case SubmissionWait:
 		return "Wait a bit before submitting again"
-	case WrongLevel:
+	case SubmissionWrongLevel:
 		return "You are solving the wrong level"
-	case Error:
+	case SubmissionError:
 		return "Error submitting answer"
 	default:
 		return "Unknown outcome"
 	}
 }
 
-func (c *Client) SubmitAnswer(level Level, year, day int, answer int) (SubmissionOutcome, error) {
+func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (SubmissionOutcome, error) {
 	data := url.Values{}
 	data.Set("level", fmt.Sprintf("%d", level))
-	data.Set("answer", fmt.Sprintf("%d", answer))
+	data.Set("answer", fmt.Sprintf("%s", answer))
 
 	req, err := http.NewRequest("POST", SubmitURL(year, day), bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		return Error, fmt.Errorf("failed to create request: %v", err)
+		return SubmissionError, fmt.Errorf("failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := fetchSiteBody(c, req)
 	if err != nil {
-		return Error, err
+		return SubmissionError, err
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return Error, fmt.Errorf("Failed to parse HTML: %v", err)
+		return SubmissionError, fmt.Errorf("Failed to parse HTML: %v", err)
 	}
 
 	outcome := doc.Find("article > p").Text()
 	if strings.Contains(outcome, "That's the right answer") {
-		return Correct, nil
+		return SubmissionCorrect, nil
 	} else if strings.Contains(outcome, "That's not the right answer") {
-		return Incorrect, nil
+		return SubmissionIncorrect, nil
 	} else if strings.Contains(outcome, "You gave an answer too recently") {
-		return Wait, nil
+		return SubmissionWait, nil
 	} else if strings.Contains(outcome, "You don't seem to be solving the right level") {
-		return WrongLevel, nil
+		return SubmissionWrongLevel, nil
 	} else {
-		return Error, errors.New("did not match any outcome")
+		return SubmissionError, errors.New("did not match any outcome")
 	}
 }
