@@ -46,7 +46,8 @@ func executeSubmit(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Submitting answer %s for %d/%d, level %d\n", answer, year, day, level)
 
-	outcome, err := aoc.SubmissionIncorrect, nil //client.SubmitAnswer(aoc.Level(level), year, day, answer)
+	outcome, err := client.SubmitAnswer(aoc.Level(level), year, day, answer)
+	//outcome, err := aoc.SubmissionIncorrect, nil
 	if err != nil {
 		return fmt.Errorf("Error submitting answer: %v", err)
 	}
