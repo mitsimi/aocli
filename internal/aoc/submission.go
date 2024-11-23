@@ -11,11 +11,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// application/x-www-form-urlencoded
-// POST https://adventofcode.com/{}/day/{}/answer
-// Payload: {level: number, answer: number}
-// url encoded: level=1&answer=21
-
 type Level int
 
 const (
