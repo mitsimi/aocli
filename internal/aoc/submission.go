@@ -31,17 +31,17 @@ const (
 func (so SubmissionOutcome) String() string {
 	switch so {
 	case Correct:
-		return "correct"
+		return "Correct answer"
 	case Incorrect:
-		return "incorrect"
+		return "Incorrect answer"
 	case Wait:
-		return "wait"
+		return "Wait a bit before submitting again"
 	case WrongLevel:
-		return "wrong level"
+		return "You are solving the wrong level"
 	case Error:
-		return "error"
+		return "Error submitting answer"
 	default:
-		return "unknow outcome"
+		return "Unknown outcome"
 	}
 }
 
