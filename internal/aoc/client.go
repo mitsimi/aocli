@@ -40,8 +40,6 @@ func NewClient(token string, options ...Option) *Client {
 		Client: &http.Client{
 			Jar: jar,
 		},
-
-		unlockLocation: time.FixedZone("UTC-5", -5*60*60),
 	}
 
 	for _, opt := range options {
@@ -52,34 +50,48 @@ func NewClient(token string, options ...Option) *Client {
 }
 
 // isDayUnlocked checks if a challenge is unlocked based on the given year and day.
-func (c *Client) isDayUnlocked(year int, day int) (bool, error) {
+func IsDayUnlocked(year int, day int) (bool, error) {
+	var unlockLocation = time.FixedZone("UTC-5", -5*60*60)
+
 	// Define the release time in UTC-5 for the given year and day
-	releaseTime := time.Date(year, time.December, day, 0, 0, 0, 0, c.unlockLocation)
+	releaseTime := time.Date(year, time.December, day, 0, 0, 0, 0, unlockLocation)
 
 	// Get the current time in UTC
-	currentTime := time.Now().In(c.unlockLocation)
+	currentTime := time.Now().In(unlockLocation)
 
 	// Check if the current time is after the release time
 	return currentTime.After(releaseTime), nil
+}
+
+type RequestError struct {
+	StatusCode int
+	Err        error
+}
+
+func (e RequestError) Error() string {
+	if e.Err != nil {
+		return fmt.Sprintf("unexpected status code: %d - %v", e.StatusCode, e.Err)
+	}
+	return fmt.Sprintf("unexpected status code: %d", e.StatusCode)
 }
 
 func (c *Client) Request(req *http.Request) ([]byte, error) {
 	// Perform the request
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("request failed: %v", err)
 	}
 	defer resp.Body.Close()
 
 	// Check for non-200 status codes
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, RequestError{resp.StatusCode, nil}
 	}
 
 	// Read the response body
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+		return nil, fmt.Errorf("failed to read response body: %v", err)
 	}
 
 	return data, nil
@@ -87,18 +99,21 @@ func (c *Client) Request(req *http.Request) ([]byte, error) {
 
 type Option func(c *Client)
 
+// WithTimeout sets the timeout duration for the client
 func WithTimeout(timeout time.Duration) Option {
 	return func(c *Client) {
 		c.Client.Timeout = timeout
 	}
 }
 
+// WithTransport sets a custom transport for the client
 func WithTransport(transport http.RoundTripper) Option {
 	return func(c *Client) {
 		c.Client.Transport = transport
 	}
 }
 
+// WithRedirectPolicy sets a custom redirecct policy for the client
 func WithRedirectPolicy(f func(req *http.Request, via []*http.Request) error) Option {
 	return func(c *Client) {
 		c.Client.CheckRedirect = f
