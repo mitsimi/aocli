@@ -12,11 +12,13 @@ import (
 
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
-	Use:   "submit",
+	Use:   "submit [flags] [answer]",
 	Short: "Submit puzzle answer",
 	Long: `Submit your puzzle answer without leaving your editor. 
 The answer may be provided as an argument or through the file flag. You also can pipe your answer into the command.`,
-	RunE: executeSubmit,
+	Args:      cobra.MaximumNArgs(1),
+	ValidArgs: []string{"answer"},
+	RunE:      executeSubmit,
 }
 
 func init() {
@@ -37,36 +39,21 @@ func init() {
 	submitCmd.Flags().IntP("day", "d", dayVal, "Puzzle day. Defaults to current/last unlocked day (during Advent of Code month) or is inferred from the current folder")
 
 	submitCmd.Flags().IntP("level", "l", 1, "Puzzle level. Defaults to 1")
-	submitCmd.MarkFlagRequired("level")
 
 	submitCmd.Flags().StringP("file", "f", "", "File containing the answer")
 }
 
 func executeSubmit(cmd *cobra.Command, args []string) error {
-	err := cmd.ValidateRequiredFlags()
-	if err != nil {
-		return fmt.Errorf("Error: %v", err)
-	}
-
 	answer, err := getAnswer(cmd, args)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
-	level, err := cmd.Flags().GetInt("level")
-	if err != nil {
-		return fmt.Errorf("Error getting level flag: %v", err)
-	}
+	level, _ := cmd.Flags().GetInt("level")
 
-	year, err := cmd.Flags().GetInt("year")
-	if err != nil {
-		return fmt.Errorf("Error getting year flag: %v", err)
-	}
+	year, _ := cmd.Flags().GetInt("year")
 
-	day, err := cmd.Flags().GetInt("day")
-	if err != nil {
-		return fmt.Errorf("Error getting day flag: %v", err)
-	}
+	day, _ := cmd.Flags().GetInt("day")
 
 	outcome, err := client.SubmitAnswer(aoc.Level(level), year, day, answer)
 	if err != nil {
@@ -97,6 +84,10 @@ func getAnswer(cmd *cobra.Command, args []string) (string, error) {
 			return "", err
 		}
 		return string(file), nil
+	}
+
+	if len(args) == 0 {
+		return "", fmt.Errorf("No answer provided")
 	}
 
 	return args[0], nil
