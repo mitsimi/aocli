@@ -19,9 +19,6 @@ var rootCmd = &cobra.Command{
 	Short: "Convenient cli tool for Advent of Code to get going faster.",
 	Long: `aocli is a convenient cli tool for Advent of Code so you never have to leave your editor.
 It automatically can retreive the puzzle description and input and submit your answer.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -36,12 +33,10 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Initialize the client
 	client = aoc.NewClient(viper.GetString("session"))
 
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file")
-
 }
 
 // initConfig reads in config file and ENV variables if set.
