@@ -37,7 +37,7 @@ func getDefaultYear() int {
 	return yearVal
 }
 
-// getDefaultDay returns the latest day where a event is available
+// getDefaultDay returns the latest day where an event is available
 func getDefaultDay() int {
 	if d, err := getDayFromCurrentDir(); err == nil {
 		n, err := strconv.Atoi(d)
