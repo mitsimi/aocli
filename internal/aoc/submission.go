@@ -2,7 +2,6 @@ package aoc
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -46,10 +45,19 @@ func (so SubmissionOutcome) String() string {
 	case SubmissionWrongLevel:
 		return "You are solving the wrong level"
 	case SubmissionError:
-		return "Error submitting answer"
+		fallthrough
 	default:
-		return "Unknown outcome"
+		return "Error submitting answer"
 	}
+}
+
+type UnknownResponseError struct {
+	StatusCode int
+	Response   string
+}
+
+func (e UnknownResponseError) Error() string {
+	return fmt.Sprintf("Unknown response: %d \n%s", e.StatusCode, e.Response)
 }
 
 func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (SubmissionOutcome, error) {
@@ -74,7 +82,8 @@ func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (Submis
 		return SubmissionError, fmt.Errorf("Failed to parse HTML: %v", err)
 	}
 
-	outcome := doc.Find("article > p").Text()
+	outcome := doc.Find("main > article > p").Text()
+	fmt.Println(outcome)
 	if strings.Contains(outcome, "That's the right answer") {
 		return SubmissionCorrect, nil
 	} else if strings.Contains(outcome, "That's not the right answer") {
@@ -84,6 +93,6 @@ func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (Submis
 	} else if strings.Contains(outcome, "You don't seem to be solving the right level") {
 		return SubmissionWrongLevel, nil
 	} else {
-		return SubmissionError, errors.New("did not match any outcome")
+		return SubmissionError, UnknownResponseError{StatusCode: resp.StatusCode, Response: outcome}
 	}
 }

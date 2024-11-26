@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var client *aoc.Client
+
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
 	Use:   "submit [flags] [answer]",
@@ -18,6 +20,9 @@ The answer may be provided as an argument or through the file flag. You also can
 	Args:      cobra.MaximumNArgs(1),
 	ValidArgs: []string{"answer"},
 	RunE:      executeSubmit,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		client = getNewClient(cmd)
+	},
 }
 
 func init() {
@@ -43,10 +48,10 @@ func executeSubmit(cmd *cobra.Command, args []string) error {
 	day := getDay(cmd)
 	fmt.Printf("Submitting answer %s for %d/%d, level %d\n", answer, year, day, level)
 
-	outcome, err := client.SubmitAnswer(aoc.Level(level), year, day, answer)
-	//outcome, err := aoc.SubmissionIncorrect, nil
+	//outcome, err := client.SubmitAnswer(aoc.Level(level), year, day, answer)
+	outcome, err := aoc.SubmissionIncorrect, nil
 	if err != nil {
-		return fmt.Errorf("Error submitting answer: %v", err)
+		return err
 	}
 
 	fmt.Printf("%s\n", outcome)

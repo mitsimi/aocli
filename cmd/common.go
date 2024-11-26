@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func getNewClient(cmd *cobra.Command) *aoc.Client {
+	return aoc.NewClient(getSessionToken(cmd))
+}
+
 // getDayFromCurrentDir returns the day number from the current working directory
 func getDayFromCurrentDir() (string, error) {
 	// Get working dir, which equals to the location from where the command is issued
@@ -86,4 +90,16 @@ func getYear(cmd *cobra.Command) int {
 	// }
 
 	return getDefaultYear()
+}
+
+// getSessionToken returns the session token in order from the flag or config
+func getSessionToken(cmd *cobra.Command) string {
+	fmt.Printf("%+v\n", session)
+	if session != "" {
+		fmt.Println("Using session token from flag")
+		return session
+	}
+
+	// TODO return session from config
+	return "some session"
 }
