@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Long: `aocli is a convenient cli tool for Advent of Code so you never have to leave your editor.
 It automatically can retreive the puzzle description and input and submit your answer.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if s := getSessionToken(cmd); s != "" {
+		if s := getSessionToken(); s != "" {
 			client = aoc.NewClient(s)
 			return nil
 		}
@@ -49,7 +49,7 @@ func initConfig() {
 }
 
 // getSessionToken returns the session token in order from the flag or config
-func getSessionToken(cmd *cobra.Command) string {
+func getSessionToken() string {
 	fmt.Printf("%+v\n", session)
 	if session != "" {
 		fmt.Println("Using session token from flag")
