@@ -50,9 +50,8 @@ func initConfig() {
 
 // getSessionToken returns the session token in order from the flag or config
 func getSessionToken() string {
-	fmt.Printf("%+v\n", session)
 	if session != "" {
-		fmt.Println("Using session token from flag")
+		//fmt.Println("Using session token from flag")
 		return session
 	}
 
