@@ -24,7 +24,6 @@ func init() {
 	rootCmd.AddCommand(submitCmd)
 
 	submitCmd.Flags().IntP("year", "y", 0, "puzzle year (year of current or last event. Can be specified in the config file)")
-
 	submitCmd.Flags().IntP("day", "d", 0, "puzzle day (current/last unlocked day (during Advent of Code month) or is inferred from the current folder)")
 
 	submitCmd.Flags().IntP("level", "l", 1, "puzzle level (1 or 2)")
