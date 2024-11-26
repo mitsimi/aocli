@@ -16,25 +16,28 @@ type Client struct {
 
 // NewClient initializes a new client with a base URL and session token in a jar
 func NewClient(token string, options ...Option) *Client {
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		log.Fatalf("Failed to create cookie jar: %v", err)
-	}
-	cookie := &http.Cookie{
-		Name:  "session",
-		Value: token,
-		Path:  "/",
-	}
-
-	u, err := url.Parse(BaseURL)
-	if err != nil {
-		log.Fatalf("Failed to parse BaseURL: %v", err)
-	}
-
-	jar.SetCookies(u, []*http.Cookie{cookie})
-
 	client := &Client{}
-	client.Jar = jar
+
+	if token != "" {
+		jar, err := cookiejar.New(nil)
+		if err != nil {
+			log.Fatalf("Failed to create cookie jar: %v", err)
+		}
+		cookie := &http.Cookie{
+			Name:  "session",
+			Value: token,
+			Path:  "/",
+		}
+
+		u, err := url.Parse(BaseURL)
+		if err != nil {
+			log.Fatalf("Failed to parse BaseURL: %v", err)
+		}
+
+		jar.SetCookies(u, []*http.Cookie{cookie})
+
+		client.Jar = jar
+	}
 
 	for _, opt := range options {
 		opt(client)
@@ -45,6 +48,10 @@ func NewClient(token string, options ...Option) *Client {
 
 // isDayUnlocked checks if a challenge is unlocked based on the given year and day.
 func IsDayUnlocked(year int, day int) (bool, error) {
+	if day > 25 {
+		return false, nil
+	}
+
 	var unlockLocation = time.FixedZone("UTC-5", -5*60*60)
 
 	// Define the release time in UTC-5 for the given year and day
@@ -59,17 +66,18 @@ func IsDayUnlocked(year int, day int) (bool, error) {
 
 type RequestError struct {
 	StatusCode int
+	URL        string
 	Err        error
 }
 
 func (e RequestError) Error() string {
 	if e.Err != nil {
-		return fmt.Sprintf("unexpected status code: %d - %v", e.StatusCode, e.Err)
+		return fmt.Sprintf("unexpected status code: %d from %s - %v", e.StatusCode, e.URL, e.Err)
 	}
-	return fmt.Sprintf("unexpected status code: %d", e.StatusCode)
+	return fmt.Sprintf("unexpected status code: %d from %s", e.StatusCode, e.URL)
 }
 
-func (c *Client) Request(req *http.Request) ([]byte, error) {
+func (c *Client) RequestData(req *http.Request) ([]byte, error) {
 	// Perform the request
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -79,7 +87,7 @@ func (c *Client) Request(req *http.Request) ([]byte, error) {
 
 	// Check for non-200 status codes
 	if resp.StatusCode != http.StatusOK {
-		return nil, RequestError{resp.StatusCode, nil}
+		return nil, RequestError{resp.StatusCode, req.RemoteAddr, nil}
 	}
 
 	// Read the response body
@@ -89,6 +97,21 @@ func (c *Client) Request(req *http.Request) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+func (c *Client) Request(req *http.Request) (*http.Response, error) {
+	// Perform the request
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %v", err)
+	}
+
+	// Check for non-200 status codes
+	if resp.StatusCode != http.StatusOK {
+		return nil, RequestError{resp.StatusCode, fmt.Sprintf("%s%s", req.Host, req.URL.Path), nil}
+	}
+
+	return resp, nil
 }
 
 type Option func(c *Client)
