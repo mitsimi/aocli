@@ -47,10 +47,12 @@ func getDefaultDay() int {
 		}
 	}
 
+	year := getDefaultYear()
 	var dayVal int = time.Now().Day()
-	if unlocked, _ := aoc.IsDayUnlocked(getDefaultYear(), dayVal); !unlocked {
-		// default to lasts years because this years isn't open yet
-		dayVal -= 1
+	unlocked, _ := aoc.IsDayUnlocked(year, dayVal)
+	for !unlocked {
+		dayVal = dayVal - 1
+		unlocked, _ = aoc.IsDayUnlocked(year, dayVal)
 	}
 	return dayVal
 }
