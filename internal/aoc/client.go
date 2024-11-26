@@ -11,10 +11,7 @@ import (
 )
 
 type Client struct {
-	Session string
-	Client  *http.Client
-
-	unlockLocation *time.Location
+	http.Client
 }
 
 // NewClient initializes a new client with a base URL and session token in a jar
@@ -36,11 +33,8 @@ func NewClient(token string, options ...Option) *Client {
 
 	jar.SetCookies(u, []*http.Cookie{cookie})
 
-	client := &Client{
-		Client: &http.Client{
-			Jar: jar,
-		},
-	}
+	client := &Client{}
+	client.Jar = jar
 
 	for _, opt := range options {
 		opt(client)
@@ -118,4 +112,24 @@ func WithRedirectPolicy(f func(req *http.Request, via []*http.Request) error) Op
 	return func(c *Client) {
 		c.Client.CheckRedirect = f
 	}
+}
+
+type DebugTransport struct {
+	Transport http.RoundTripper
+}
+
+func NewDebugTransport() *DebugTransport {
+	return &DebugTransport{
+		Transport: http.DefaultTransport,
+	}
+}
+
+func (d *DebugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	// log url and body of the request
+	log.Printf("Request: %s %s", req.Method, req.URL)
+	if req.Body != nil {
+		body, _ := io.ReadAll(req.Body)
+		log.Printf("Body: %s", body)
+	}
+	return d.Transport.RoundTrip(req)
 }
