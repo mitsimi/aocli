@@ -6,7 +6,6 @@ import (
 
 	"github.com/mitsimi/aocli/internal/aoc"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var cfgFile string
@@ -24,6 +23,7 @@ It automatically can retreive the puzzle description and input and submit your a
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	client = aoc.NewClient(getSessionToken(rootCmd), aoc.WithTransport(aoc.NewDebugTransport()))
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -33,31 +33,21 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	client = aoc.NewClient(viper.GetString("session"))
-
-
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file")
+	rootCmd.PersistentFlags().StringP("session", "s", "", "session cookie value from adventofcode.com")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		if _, err := getDayFromCurrentDir(); err == nil {
-			viper.AddConfigPath("..")
-		} else {
-			viper.AddConfigPath(".")
-		}
+	// TODO load config from file
+}
 
-		// Search config in home directory with name ".aocli" (without extension).
-		viper.SetConfigType("toml")
-		viper.SetConfigName(".aocli")
+func getSessionToken(cmd *cobra.Command) string {
+	if cmd.Flags().Changed("session") {
+		fmt.Println("Using session token from flag")
+		return cmd.Flag("session").Value.String()
 	}
-	viper.SetDefault("year", getDefaultYear())
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-	}
+	// TODO return session from config
+	return "session"
 }

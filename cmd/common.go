@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mitsimi/aocli/internal/aoc"
+	"github.com/spf13/cobra"
 )
 
 // getDayFromCurrentDir returns the day number from the current working directory
@@ -52,4 +53,37 @@ func getDefaultDay() int {
 		dayVal -= 1
 	}
 	return dayVal
+}
+
+// getDay returns the day from the flag or uses the default.
+// The default is the current or last unlocked day.
+func getDay(cmd *cobra.Command) int {
+	if day, _ := cmd.Flags().GetInt("day"); day != 0 {
+		return day
+	}
+
+	return getDefaultDay()
+}
+
+// getYear returns the year from the flag, config or default.
+// The default is the current or last event year
+func getYear(cmd *cobra.Command) int {
+	// function to use to convert the year shorthand ex. 19 to 2019
+	// we do not care about the century before 2000 because advent of code started in 2015
+	conv := func(year int) int {
+		if year < 100 {
+			return year + 2000
+		}
+		return year
+	}
+
+	if year, _ := cmd.Flags().GetInt("year"); year != 0 {
+		return conv(year)
+	}
+
+	// if year := viper.GetInt("year"); year != 0 {
+	// 	return conv(year)
+	// }
+
+	return getDefaultYear()
 }
