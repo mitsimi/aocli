@@ -21,7 +21,7 @@ func (c *Client) GetDescription(year, day int) (HTMLContent, error) {
 	}
 
 	// Get site content
-	resp, err := fetchSiteBody(c, req)
+	resp, err := c.Request(req)
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +50,7 @@ func (c *Client) GetExamples(year, day int) ([]string, error) {
 	}
 
 	// Get site content
-	resp, err := fetchSiteBody(c, req)
+	resp, err := c.Request(req)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (c *Client) GetInput(year, day int) (string, error) {
 	}
 
 	// Get site content
-	resp, err := fetchSiteBody(c, req)
+	resp, err := c.Request(req)
 	if err != nil {
 		return "", err
 	}
@@ -90,22 +90,6 @@ func (c *Client) GetInput(year, day int) (string, error) {
 	}
 
 	return data, nil
-}
-
-// fetches the html content of a site and returns it body.
-// Dont forget do close the body yourself.
-func fetchSiteBody(c *Client, req *http.Request) (*http.Response, error) {
-	// Fetch the HTML body
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to fetch the URL: %v", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
-	}
-
-	return resp, nil
 }
 
 // parses each code block after a p element if it contains the word "example"

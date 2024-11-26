@@ -71,7 +71,7 @@ func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (Submis
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := fetchSiteBody(c, req)
+	resp, err := c.Request(req)
 	if err != nil {
 		return SubmissionError, err
 	}
