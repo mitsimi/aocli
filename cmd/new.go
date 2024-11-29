@@ -45,9 +45,11 @@ func executeNew(cmd *cobra.Command, args []string) {
 		targetDir = filepath.Dir(currentDir)
 	}
 
-	// if the current directory is not the year folder, then we must be inside the root folder
-	if filepath.Base(currentDir) != yearFolder {
-		targetDir = filepath.Join(currentDir, yearFolder)
+	if conf.Structure == "multi-year" {
+		// if the current directory is not the year folder, then we must be inside the root folder
+		if filepath.Base(currentDir) != yearFolder {
+			targetDir = filepath.Join(currentDir, yearFolder)
+		}
 	}
 
 	targetDir = filepath.Join(targetDir, dayFolder)
