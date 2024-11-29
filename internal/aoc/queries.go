@@ -94,7 +94,7 @@ func (c *Client) GetInput(year, day int) (string, error) {
 
 // parses each code block after a p element if it contains the word "example"
 func parseExamples(doc *goquery.Document) []string {
-	examples := make([]string, 0, 2)
+	dupe := make(map[string]struct{})
 	// Find the desired <code> tags
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
 		// Check if the paragraph contains "For example:"
@@ -103,11 +103,15 @@ func parseExamples(doc *goquery.Document) []string {
 			preTag := s.NextFiltered("pre")
 			if preTag.Length() > 0 {
 				// Extract the code content inside <pre><code>
-				examples = append(examples, preTag.Find("code").Text())
+				dupe[preTag.Find("code").Text()] = struct{}{}
 			}
 		}
 	})
 
+	examples := make([]string, 0, 2)
+	for k := range dupe {
+		examples = append(examples, k)
+	}
 	return examples
 }
 
