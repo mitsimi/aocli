@@ -13,7 +13,7 @@ import (
 var submitCmd = &cobra.Command{
 	Use:   "submit [flags] [answer]",
 	Short: "Submit puzzle answer",
-	Long: `Submit your puzzle answer without leaving your editor. 
+	Long: `Submit your puzzle answer without leaving your editor.
 The answer may be provided as an argument or through the file flag. You also can pipe your answer into the command.`,
 	Args:      cobra.MaximumNArgs(1),
 	ValidArgs: []string{"answer"},
@@ -61,6 +61,7 @@ func executeSubmit(cmd *cobra.Command, args []string) error {
 	case aoc.SubmissionError:
 		cmd.PrintErr("Could not read the response from the site.")
 	}
+	return nil
 }
 
 // getAnswer returns the answer from the stdin, file or argument
