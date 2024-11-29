@@ -40,7 +40,7 @@ func executeSubmit(cmd *cobra.Command, args []string) error {
 	level, _ := cmd.Flags().GetInt("level")
 	year := getYear(cmd)
 	day := getDay(cmd)
-	fmt.Printf("Submitting answer %s for %d/%d, level %d\n", answer, year, day, level)
+	cmd.Printf("Submitting answer %s for %d/%d, level %d\n", answer, year, day, level)
 
 	outcome, err := client.SubmitAnswer(aoc.Level(level), year, day, answer)
 	//outcome, err := aoc.SubmissionIncorrect, nil
@@ -48,8 +48,19 @@ func executeSubmit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("%s\n", outcome)
-	return nil
+	switch outcome {
+	case aoc.SubmissionCorrect:
+		cmd.Println("Your solution is correct! 🎉")
+		cmd.Println("Use download to get the second part of the puzzle description.")
+	case aoc.SubmissionIncorrect:
+		cmd.Println("Your solution is incorrect. 😢")
+	case aoc.SubmissionWait:
+		cmd.Println("You have to wait a bit before submitting again.")
+	case aoc.SubmissionWrongLevel:
+		cmd.Println("Something went wrong. Please check the level.")
+	case aoc.SubmissionError:
+		cmd.PrintErr("Could not read the response from the site.")
+	}
 }
 
 // getAnswer returns the answer from the stdin, file or argument
