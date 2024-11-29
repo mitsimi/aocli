@@ -79,6 +79,7 @@ func executeDownload(cmd *cobra.Command, args []string) error {
 	}
 
 	if ok, _ := cmd.Flags().GetBool("description"); ok {
+		cmd.Println("Downloading description...")
 		err = downloadDescription(year, day, dir)
 		if err != nil {
 			return err
@@ -86,6 +87,7 @@ func executeDownload(cmd *cobra.Command, args []string) error {
 	}
 
 	if ok, _ := cmd.Flags().GetBool("examples"); ok {
+		cmd.Println("Downloading examples...")
 		err = downloadExamples(year, day, dir)
 		if err != nil {
 			return err
@@ -93,6 +95,7 @@ func executeDownload(cmd *cobra.Command, args []string) error {
 	}
 
 	if ok, _ := cmd.Flags().GetBool("input"); ok {
+		cmd.Println("Downloading input...")
 		err = downloadInput(year, day, dir)
 		if err != nil {
 			return err

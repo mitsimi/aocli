@@ -62,18 +62,20 @@ func executeNew(cmd *cobra.Command, args []string) {
 
 	templateDir := filepath.Join(currentDir, "template")
 	if _, err := os.Stat(templateDir); !os.IsNotExist(err) {
+		cmd.Println("Copying template files...")
 		if err := template.CopyContent(templateDir, targetDir); err != nil {
 			cmd.PrintErrln("Failed to copy template files:", err)
 			return
 		}
 	}
 
+	cmd.Println("Downloading puzzle data...")
 	if err := downloadPuzzleData(year, day, targetDir); err != nil {
 		cmd.PrintErrln("Failed to download puzzle data:", err)
 		return
 	}
 
-	cmd.Println("New folder created successfully")
+	cmd.Println("Finished created successfully!")
 }
 
 func downloadPuzzleData(year, day int, destDir string) (err error) {
