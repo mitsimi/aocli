@@ -30,6 +30,7 @@ It automatically can retreive the puzzle description and input and submit your a
 			return nil
 		}
 
+		cmd.SilenceUsage = true
 		return fmt.Errorf("no session token provided")
 	},
 }
@@ -141,10 +142,12 @@ func initConfig() {
 // getSessionToken returns the session token in order from the flag or config
 func getSessionToken() string {
 	if sessionFlag != "" {
-		//fmt.Println("Using session token from flag")
 		return sessionFlag
 	}
 
-	// TODO return session from config
+	if conf.Session != "" {
+		return conf.Session
+	}
+
 	return ""
 }
