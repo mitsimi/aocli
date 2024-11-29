@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/mitsimi/aocli/internal/template"
 	"github.com/spf13/cobra"
 )
 
@@ -25,13 +27,64 @@ func init() {
 }
 
 func executeNew(cmd *cobra.Command, args []string) {
-	fmt.Println("new called")
-	// check config for wanted files structure
-	// check current folder for creation process
+	year := getYear(cmd)
+	day := getDay(cmd)
 
-	// create folders
-	// copy template files
-	// download description, examples and inputs
+	currentDir, err := os.Getwd()
+	if err != nil {
+		cmd.PrintErrln("Failed to get current directory:", err)
+		return
+	}
+
+	yearFolder := fmt.Sprintf("%d", year)
+	dayFolder := fmt.Sprintf("day%02d", day)
+	targetDir := currentDir
+
+	// if the current directory is not the year folder, then we must be inside the root folder
+	if filepath.Base(currentDir) != yearFolder {
+		targetDir = filepath.Join(currentDir, yearFolder)
+	}
+
+	targetDir = filepath.Join(targetDir, dayFolder)
+
+	if err := createFolders(targetDir); err != nil {
+		cmd.PrintErrln("Failed to create folders:", err)
+		return
+	}
+
+	templateDir := filepath.Join(currentDir, "template")
+	if _, err := os.Stat(templateDir); !os.IsNotExist(err) {
+		if err := template.CopyContent(templateDir, targetDir); err != nil {
+			cmd.PrintErrln("Failed to copy template files:", err)
+			return
+		}
+	}
+
+	if err := downloadPuzzleData(year, day, targetDir); err != nil {
+		cmd.PrintErrln("Failed to download puzzle data:", err)
+		return
+	}
+
+	cmd.Println("New folder created successfully")
+}
+
+func downloadPuzzleData(year, day int, destDir string) (err error) {
+	err = downloadDescription(year, day, destDir)
+	if err != nil {
+		return err
+	}
+
+	err = downloadInput(year, day, destDir)
+	if err != nil {
+		return err
+	}
+
+	err = downloadExamples(year, day, destDir)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func createFolders(path string) error {
