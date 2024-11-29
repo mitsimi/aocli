@@ -4,6 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,14 +17,15 @@ import (
 var downloadCmd = &cobra.Command{
 	Use:   "download",
 	Short: "Download the puzzle description, examples and inputs",
-	Long: `Download the puzzle description, examples and inputs. 
+	Long: `Download the puzzle description, examples and inputs.
 The files will be saved in the current folder or in the folder specified by the output flag.`,
 	Args: cobra.NoArgs,
 	RunE: executeDownload,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// we download the input by default and if specified, because the input is generated per player we need a session token for it
+		// we download the input by default and if specified, because the input is generated per account we need a session token for it
 		if !contentFlagsChanged(cmd) || cmd.Flag("input").Changed {
-			return fmt.Errorf("a session token is required to download the input")
+			cmd.SilenceUsage = true
+			return errors.New("a session token is required to download the input")
 		}
 
 		client = aoc.NewClient(getSessionToken())
