@@ -61,49 +61,78 @@ func executeDownload(cmd *cobra.Command, args []string) error {
 		cmd.Flag("input").Value.Set("true")
 	}
 
+	year := getYear(cmd)
+	day := getDay(cmd)
+
 	if ok, _ := cmd.Flags().GetBool("description"); ok {
-		year := getYear(cmd)
-		content, err := client.GetDescription(year, getDay(cmd))
-		if err != nil {
-			return err
-		}
-
-		md, err := content.ToMarkdown(year)
-		if err != nil {
-			return err
-		}
-
-		err = writeStringToFile(filepath.Join(dir, "description.md"), md)
+		err = downloadDescription(year, day, dir)
 		if err != nil {
 			return err
 		}
 	}
 
 	if ok, _ := cmd.Flags().GetBool("examples"); ok {
-		content, err := client.GetExamples(getYear(cmd), getDay(cmd))
+		err = downloadExamples(year, day, dir)
 		if err != nil {
 			return err
-		}
-
-		for i, ex := range content {
-			fileName := fmt.Sprintf("example%02d", i+1)
-			err = writeStringToFile(filepath.Join(dir, fileName), ex)
-			if err != nil {
-				return err
-			}
 		}
 	}
 
 	if ok, _ := cmd.Flags().GetBool("input"); ok {
-		content, err := client.GetInput(getYear(cmd), getDay(cmd))
+		err = downloadInput(year, day, dir)
 		if err != nil {
 			return err
 		}
+	}
 
-		err = writeStringToFile(filepath.Join(dir, "input"), string(content))
+	return nil
+}
+
+func downloadDescription(year, day int, dir string) error {
+	content, err := client.GetDescription(year, day)
+	if err != nil {
+		return err
+	}
+
+	md, err := content.ToMarkdown(year)
+	if err != nil {
+		return err
+	}
+
+	err = writeStringToFile(filepath.Join(dir, "description.md"), md)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func downloadExamples(year, day int, dir string) error {
+	content, err := client.GetExamples(year, day)
+	if err != nil {
+		return err
+	}
+
+	for i, ex := range content {
+		fileName := fmt.Sprintf("example%02d", i+1)
+		err = writeStringToFile(filepath.Join(dir, fileName), ex)
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func downloadInput(year, day int, dir string) error {
+	content, err := client.GetInput(year, day)
+	if err != nil {
+		return err
+	}
+
+	err = writeStringToFile(filepath.Join(dir, "input"), string(content))
+	if err != nil {
+		return err
 	}
 
 	return nil
