@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 
 	"github.com/mitsimi/aocli/internal/template"
 	"github.com/spf13/cobra"
@@ -37,7 +38,6 @@ func executeNew(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	yearFolder := fmt.Sprintf("%d", year)
 	dayFolder := fmt.Sprintf("day%02d", day)
 	targetDir := currentDir
 
@@ -46,9 +46,10 @@ func executeNew(cmd *cobra.Command, args []string) {
 	}
 
 	if conf.Structure == "multi-year" {
-		// if the current directory is not the year folder, then we must be inside the root folder
-		if filepath.Base(currentDir) != yearFolder {
-			targetDir = filepath.Join(currentDir, yearFolder)
+		// if the current directory is not a year folder, then we must be inside the root folder
+		yearReg := regexp.MustCompile(`\d{4}`)
+		if yearReg.MatchString(filepath.Base(currentDir)) {
+			year, _ = strconv.Atoi(yearReg.FindString(filepath.Base(currentDir)))
 		}
 	}
 

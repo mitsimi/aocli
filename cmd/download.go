@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 
 	"github.com/mitsimi/aocli/internal/aoc"
 	"github.com/spf13/cobra"
@@ -23,7 +25,7 @@ The files will be saved in the current folder or in the folder specified by the 
 	RunE: executeDownload,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// we download the input by default and if specified, because the input is generated per account we need a session token for it
-		if !contentFlagsChanged(cmd) || cmd.Flag("input").Changed {
+		if (!contentFlagsChanged(cmd) || cmd.Flag("input").Changed) && getSessionToken() == "" {
 			cmd.SilenceUsage = true
 			return errors.New("a session token is required to download the input")
 		}
@@ -63,6 +65,18 @@ func executeDownload(cmd *cobra.Command, args []string) error {
 
 	year := getYear(cmd)
 	day := getDay(cmd)
+
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("Failed to get current directory: %v", err)
+	}
+
+	yearReg := regexp.MustCompile(`\d{4}`)
+	if yearReg.MatchString(filepath.Base(currentDir)) {
+		year, _ = strconv.Atoi(yearReg.FindString(filepath.Base(currentDir)))
+	} else if yearReg.MatchString(filepath.Dir(currentDir)) {
+		year, _ = strconv.Atoi(yearReg.FindString(filepath.Dir(currentDir)))
+	}
 
 	if ok, _ := cmd.Flags().GetBool("description"); ok {
 		err = downloadDescription(year, day, dir)
