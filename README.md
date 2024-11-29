@@ -19,28 +19,55 @@ Please do not use this tool for automated AI assisted submissions. This is activ
 - If year is not provided, default to the current or last Advent of Code event.
 - Infer puzzle day when possible (last unlocked puzzle for current and past events).
 
+## Installation
+
+You can download the latest release from the [releases page](https://github.com/mitsimi/aocli/releases/latest).
+
+Install with go:
+
+```sh
+go install https://github.com.com/mitsimi/aocli
+```
+
 ## Documentation
+
+### Commands
+
+- `new` - Create a new folder for the puzzle and download the puzzle data.
+- `download` - Download the puzzle data and save it locally.
+- `submit` - Submit your puzzle answer and check if it is correct.
+
+### Configuration
 
 The program looks for a configuration file in the following places in order:
 
 1. file provided via the flag
 2. project folder
-3. home folder
-4. home/.config
-
-### Configuration
+3. home folder (~)
+4. ~/.config
 
 The configuration file is either a TOML, YAML or JSON file with the following keys:
-| Key         | Description                                                                  | Default                    | Possible Values         |
+| Key | Description | Default | Possible Values |
 | ----------- | ---------------------------------------------------------------------------- | -------------------------- | ----------------------- |
-| `session`   | Your Advent of Code session cookie.                                          |                            |                         |
-| `year`      | The year of the Advent of Code event. Defaults to the current or last event. | current or last event year | 2015, 15, 2020, 20      |
-| `structure` | The folder structure for saving puzzles and inputs.                          | single-year                | multi-year, single-year |
+| `session` | Your Advent of Code session cookie. | | |
+| `year` | The year of the Advent of Code event. Defaults to the current or last event. | current or last event year | 2015, 15, 2020, 20 |
+| `structure` | The folder structure for saving puzzles and inputs. | single-year | multi-year, single-year |
 
 ## Example
 
+```sh
+# You can get the session from the cookies of https://adventofcode.com
 
-## Installation
+mkdir ./template # Feel free to add your code boilerplate in this folder
+aocli new -y 2020 -d 1 # This will create the "day_1" folder and downloads the problem into it
 
+# After you solved the problem
+cd day_01
+aocli submit -l 1 <answer>
 
-## Documentation
+# You can also pipe the answer into the cli program
+run program | aocli submit -l 1
+
+# Only download the puzzle description
+aocli download -D
+```
