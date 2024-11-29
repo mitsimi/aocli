@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/mitsimi/aocli/internal/template"
 	"github.com/spf13/cobra"
@@ -39,6 +40,10 @@ func executeNew(cmd *cobra.Command, args []string) {
 	yearFolder := fmt.Sprintf("%d", year)
 	dayFolder := fmt.Sprintf("day%02d", day)
 	targetDir := currentDir
+
+	if regexp.MustCompile(`day\d{2}`).MatchString(filepath.Base(currentDir)) {
+		targetDir = filepath.Dir(currentDir)
+	}
 
 	// if the current directory is not the year folder, then we must be inside the root folder
 	if filepath.Base(currentDir) != yearFolder {
