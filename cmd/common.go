@@ -83,9 +83,9 @@ func getYear(cmd *cobra.Command) int {
 		return conv(year)
 	}
 
-	// if year := viper.GetInt("year"); year != 0 {
-	// 	return conv(year)
-	// }
+	if year := conf.Year; year != 0 {
+		return conv(year)
+	}
 
 	return getDefaultYear()
 }
