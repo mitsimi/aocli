@@ -19,6 +19,24 @@ Please do not use this tool for automated AI assisted submissions. This is activ
 - If year is not provided, default to the current or last Advent of Code event.
 - Infer puzzle day when possible (last unlocked puzzle for current and past events).
 
+## Documentation
+
+The program looks for a configuration file in the following places in order:
+
+1. file provided via the flag
+2. project folder
+3. home folder
+4. home/.config
+
+### Configuration
+
+The configuration file is either a TOML, YAML or JSON file with the following keys:
+| Key         | Description                                                                  | Default                    | Possible Values         |
+| ----------- | ---------------------------------------------------------------------------- | -------------------------- | ----------------------- |
+| `session`   | Your Advent of Code session cookie.                                          |                            |                         |
+| `year`      | The year of the Advent of Code event. Defaults to the current or last event. | current or last event year | 2015, 15, 2020, 20      |
+| `structure` | The folder structure for saving puzzles and inputs.                          | single-year                | multi-year, single-year |
+
 ## Example
 
 
