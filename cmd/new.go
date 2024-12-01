@@ -41,15 +41,19 @@ func executeNew(cmd *cobra.Command, args []string) {
 	dayFolder := fmt.Sprintf("day%02d", day)
 	targetDir := currentDir
 
+	// if the current directory is a day folder, then we must set the target directory to the parent folder so we don't create a nested day folder
 	if regexp.MustCompile(`day\d{2}`).MatchString(filepath.Base(currentDir)) {
 		targetDir = filepath.Dir(currentDir)
 	}
 
 	if conf.Structure == "multi-year" {
-		// if the current directory is not a year folder, then we must be inside the root folder
 		yearReg := regexp.MustCompile(`\d{4}`)
-		if yearReg.MatchString(filepath.Base(currentDir)) {
+		if yearReg.MatchString(filepath.Base(currentDir)) { // check if the current directory is a year folder
+			// if yes we set the year to the year of the current directory
 			year, _ = strconv.Atoi(yearReg.FindString(filepath.Base(currentDir)))
+		} else {
+			// if not we set the target directory to the year folder
+			targetDir = filepath.Join(targetDir, fmt.Sprintf("%d", year))
 		}
 	}
 
