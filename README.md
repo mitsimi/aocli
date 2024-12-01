@@ -39,12 +39,14 @@ go install https://github.com.com/mitsimi/aocli
 
 ### Configuration
 
-The program looks for a configuration file in the following places in order:
+The program looks for a configuration file in the following places:
 
-1. file provided via the flag
+1. home folder (~)
 2. project folder
-3. home folder (~)
-4. ~/.config
+3. file provided via the flag
+
+The configuration values getting merged in the order above. The last value (flag) wins. This means that you can provide a default configuration in your home folder and override it with a project specific configuration.
+This should should help to have the session token somewhere safe and not in the project folder, so it can't be leaked.
 
 The configuration file is either a TOML, YAML or JSON file with the following keys:
 | Key | Description | Default | Possible Values |
