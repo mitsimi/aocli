@@ -75,7 +75,7 @@ func executeNew(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	cmd.Println("Finished created successfully!")
+	cmd.Println("Finished successfully!")
 }
 
 func downloadPuzzleData(year, day int, destDir string) (err error) {
