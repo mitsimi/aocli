@@ -42,27 +42,27 @@ func (c *Client) GetDescription(year, day int) (HTMLContent, error) {
 	return HTMLContent(mainContent), nil
 }
 
-func (c *Client) GetExamples(year, day int) ([]string, error) {
+func (c *Client) GetExample(year, day int) (string, error) {
 	// Create the request
 	req, err := http.NewRequest("GET", DayURL(year, day), nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return "", fmt.Errorf("failed to create request: %w", err)
 	}
 
 	// Get site content
 	resp, err := c.Request(req)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	// Parse the HTML
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse HTML: %v", err)
+		return "", fmt.Errorf("Failed to parse HTML: %v", err)
 	}
 
-	return parseExamples(doc), nil
+	return parseExample(doc), nil
 }
 
 func (c *Client) GetInput(year, day int) (string, error) {
@@ -93,7 +93,7 @@ func (c *Client) GetInput(year, day int) (string, error) {
 }
 
 // parses each code block after a p element if it contains the word "example"
-func parseExamples(doc *goquery.Document) []string {
+func parseExample(doc *goquery.Document) string {
 	dupe := make(map[string]struct{})
 	// Find the desired <code> tags
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
@@ -108,11 +108,11 @@ func parseExamples(doc *goquery.Document) []string {
 		}
 	})
 
-	examples := make([]string, 0, 2)
 	for k := range dupe {
-		examples = append(examples, k)
+		return k
 	}
-	return examples
+
+	return ""
 }
 
 type HTMLContent string

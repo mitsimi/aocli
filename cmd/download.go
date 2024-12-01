@@ -88,7 +88,7 @@ func executeDownload(cmd *cobra.Command, args []string) error {
 
 	if ok, _ := cmd.Flags().GetBool("examples"); ok {
 		cmd.Println("Downloading examples...")
-		err = downloadExamples(year, day, dir)
+		err = downloadExample(year, day, dir)
 		if err != nil {
 			return err
 		}
@@ -124,18 +124,15 @@ func downloadDescription(year, day int, dir string) error {
 	return nil
 }
 
-func downloadExamples(year, day int, dir string) error {
-	content, err := client.GetExamples(year, day)
+func downloadExample(year, day int, dir string) error {
+	content, err := client.GetExample(year, day)
 	if err != nil {
 		return err
 	}
 
-	for i, ex := range content {
-		fileName := fmt.Sprintf("example%02d", i+1)
-		err = writeStringToFile(filepath.Join(dir, fileName), ex)
-		if err != nil {
-			return err
-		}
+	err = writeStringToFile(filepath.Join(dir, "example"), content)
+	if err != nil {
+		return err
 	}
 
 	return nil

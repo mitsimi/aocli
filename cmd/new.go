@@ -93,7 +93,7 @@ func downloadPuzzleData(year, day int, destDir string) (err error) {
 		return err
 	}
 
-	err = downloadExamples(year, day, destDir)
+	err = downloadExample(year, day, destDir)
 	if err != nil {
 		return err
 	}
