@@ -17,6 +17,23 @@ type Config struct {
 	Structure string `json:"structure" yaml:"structure" toml:"structure"`
 }
 
+// Merge merges two Configs, with the values of the second Config taking precedence.
+// If a field is not set in the second Config, the value from the first Config is used.
+// The result is a new Config.
+func Merge(a, b *Config) *Config {
+	if b.Session != "" {
+		a.Session = b.Session
+	}
+	if b.Year != 0 {
+		a.Year = b.Year
+	}
+	if b.Structure != "" {
+		a.Structure = b.Structure
+	}
+
+	return a
+}
+
 func Parse(path string) (*Config, error) {
 	switch ext := filepath.Ext(path); ext {
 	case ".json":
