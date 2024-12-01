@@ -2,7 +2,7 @@ name: "Binary Release"
 
 on:
   release:
-    types: [published, released]
+    types: [published]
 
 permissions:
   contents: write
