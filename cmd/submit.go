@@ -51,7 +51,9 @@ func executeSubmit(cmd *cobra.Command, args []string) error {
 	switch outcome {
 	case aoc.SubmissionCorrect:
 		cmd.Println("Your solution is correct! 🎉")
-		cmd.Println("Use download to get the second part of the puzzle description.")
+		if level == 1 {
+			cmd.Println("Use download to get the second part of the puzzle description.")
+		}
 	case aoc.SubmissionIncorrect:
 		cmd.Println("Your solution is incorrect. 😢")
 	case aoc.SubmissionWait:
