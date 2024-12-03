@@ -83,7 +83,6 @@ func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (Submis
 	}
 
 	outcome := doc.Find("main > article > p").Text()
-	fmt.Println(outcome)
 	if strings.Contains(outcome, "That's the right answer") {
 		return SubmissionCorrect, nil
 	} else if strings.Contains(outcome, "That's not the right answer") {
