@@ -32,6 +32,7 @@ const (
 	SubmissionIncorrectTooLow
 	SubmissionWait
 	SubmissionWrongLevel
+	SubmissionOthersAnswer
 	SubmissionError
 )
 
@@ -47,6 +48,8 @@ func (so SubmissionOutcome) String() string {
 		return "Wait a bit before submitting again"
 	case SubmissionWrongLevel:
 		return "You are solving the wrong level"
+	case SubmissionOthersAnswer:
+		return "Incorrect answer, but the correct one for someone else."
 	case SubmissionError:
 		fallthrough
 	default:
@@ -86,19 +89,19 @@ func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (Submis
 	}
 
 	outcome := doc.Find("main > article > p").Text()
-	if strings.Contains(outcome, "That's the right answer") {
+
+	switch {
+	case strings.Contains(outcome, "That's the right answer"):
 		return SubmissionCorrect, nil
 	case strings.Contains(outcome, "That's not the right answer"):
-		if strings.Contains(outcome, "too high") {
-			return SubmissionIncorrectTooHigh, nil
-		} else {
-			return SubmissionIncorrectTooLow, nil
-		}
+		return SubmissionIncorrect, nil
 	case strings.Contains(outcome, "You gave an answer too recently"):
 		return SubmissionWait, nil
-	} else if strings.Contains(outcome, "You don't seem to be solving the right level") {
+	case strings.Contains(outcome, "You don't seem to be solving the right level"):
 		return SubmissionWrongLevel, nil
-	} else {
+	case strings.Contains(outcome, "for someone else"):
+		return SubmissionOthersAnswer, nil
+	default:
 		return SubmissionError, UnknownResponseError{StatusCode: resp.StatusCode, Response: outcome}
 	}
 }
