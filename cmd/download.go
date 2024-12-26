@@ -66,6 +66,10 @@ func executeDownload(cmd *cobra.Command, args []string) error {
 	year := getYear(cmd)
 	day := getDay(cmd)
 
+	if ok, _ := aoc.IsDayUnlocked(year, day); !ok {
+		return fmt.Errorf("The given day is not unlocked.")
+	}
+
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("Failed to get current directory: %v", err)
