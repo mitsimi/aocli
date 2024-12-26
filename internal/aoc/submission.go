@@ -28,7 +28,8 @@ type SubmissionOutcome int
 
 const (
 	SubmissionCorrect SubmissionOutcome = iota
-	SubmissionIncorrect
+	SubmissionIncorrectTooHigh
+	SubmissionIncorrectTooLow
 	SubmissionWait
 	SubmissionWrongLevel
 	SubmissionOthersAnswer
@@ -39,8 +40,10 @@ func (so SubmissionOutcome) String() string {
 	switch so {
 	case SubmissionCorrect:
 		return "Correct answer"
-	case SubmissionIncorrect:
-		return "Incorrect answer"
+	case SubmissionIncorrectTooHigh:
+		return "Incorrect answer. Answer is too high."
+	case SubmissionIncorrectTooLow:
+		return "Incorrect answer. Answer is too low."
 	case SubmissionWait:
 		return "Wait a bit before submitting again"
 	case SubmissionWrongLevel:
