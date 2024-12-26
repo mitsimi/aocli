@@ -28,7 +28,8 @@ type SubmissionOutcome int
 
 const (
 	SubmissionCorrect SubmissionOutcome = iota
-	SubmissionIncorrect
+	SubmissionIncorrectTooHigh
+	SubmissionIncorrectTooLow
 	SubmissionWait
 	SubmissionWrongLevel
 	SubmissionError
@@ -38,8 +39,10 @@ func (so SubmissionOutcome) String() string {
 	switch so {
 	case SubmissionCorrect:
 		return "Correct answer"
-	case SubmissionIncorrect:
-		return "Incorrect answer"
+	case SubmissionIncorrectTooHigh:
+		return "Incorrect answer. Answer is too high."
+	case SubmissionIncorrectTooLow:
+		return "Incorrect answer. Answer is too low."
 	case SubmissionWait:
 		return "Wait a bit before submitting again"
 	case SubmissionWrongLevel:
@@ -85,9 +88,13 @@ func (c *Client) SubmitAnswer(level Level, year, day int, answer string) (Submis
 	outcome := doc.Find("main > article > p").Text()
 	if strings.Contains(outcome, "That's the right answer") {
 		return SubmissionCorrect, nil
-	} else if strings.Contains(outcome, "That's not the right answer") {
-		return SubmissionIncorrect, nil
-	} else if strings.Contains(outcome, "You gave an answer too recently") {
+	case strings.Contains(outcome, "That's not the right answer"):
+		if strings.Contains(outcome, "too high") {
+			return SubmissionIncorrectTooHigh, nil
+		} else {
+			return SubmissionIncorrectTooLow, nil
+		}
+	case strings.Contains(outcome, "You gave an answer too recently"):
 		return SubmissionWait, nil
 	} else if strings.Contains(outcome, "You don't seem to be solving the right level") {
 		return SubmissionWrongLevel, nil
